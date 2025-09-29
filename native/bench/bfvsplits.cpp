@@ -62,8 +62,8 @@ namespace sealbench
         RegisterBenchmark((string("BFV / 密文-明文乘法")).c_str(), [=](State &st) { bm_bfv_mul_combined_pt(st, bm_env_bfv); })
             ->Unit(benchmark::kMicrosecond)
             ->Iterations(10);
-        RegisterBenchmark((string("BFV / 平方")).c_str(), [=](State &st) { bm_bfv_square(st, bm_env_bfv); })
-            ->Unit(benchmark::kMicrosecond)
-            ->Iterations(10);
+        // RegisterBenchmark((string("BFV / 平方")).c_str(), [=](State &st) { bm_bfv_square(st, bm_env_bfv); })
+        //     ->Unit(benchmark::kMicrosecond)
+        //     ->Iterations(10);
     }
 }
