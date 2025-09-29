@@ -157,18 +157,19 @@ namespace sealbench
     void bm_ckks_add_pt(State &state, shared_ptr<BMEnv> bm_env)
     {
         vector<Ciphertext> &ct = bm_env->ct();
-        Plaintext &pt = bm_env->pt()[0];
+        Plaintext &pt = bm_env->pt()[1];
         double scale = bm_env->safe_scale();
         for (auto _ : state)
         {
             state.PauseTiming();
-            bm_env->randomize_ct_ckks(ct[0]);
-            ct[0].scale() = scale;
+            bm_env->randomize_ct_ckks(ct[1]);
+            ct[1].scale() = scale;
             bm_env->randomize_pt_ckks(pt);
             pt.scale() = scale;
 
             state.ResumeTiming();
-            bm_env->evaluator()->add_plain(ct[0], pt, ct[2]);
+            Ciphertext res;
+            bm_env->evaluator()->add_plain(ct[1], pt, res);
         }
     }
 

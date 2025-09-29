@@ -17,7 +17,7 @@ cmake_minimum_required(VERSION 3.13)
 # the build type here before creating the project to prevent the CMake generator from
 # overriding our default of "Release".
 if(NOT CMAKE_BUILD_TYPE)
-    set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Build type" FORCE)
     set_property(CACHE CMAKE_BUILD_TYPE PROPERTY
         STRINGS "Release" "Debug" "MinSizeRel" "RelWithDebInfo")
 endif()
@@ -181,7 +181,7 @@ endif()
 
 # [option] SEAL_USE_ZSTD (default: ON)
 set(SEAL_USE_ZSTD_OPTION_STR "Use Zstandard for compressed serialization")
-option(SEAL_USE_ZSTD ${SEAL_USE_ZSTD_OPTION_STR} ON)
+option(SEAL_USE_ZSTD ${SEAL_USE_ZSTD_OPTION_STR} OFF)
 message(STATUS "SEAL_USE_ZSTD: ${SEAL_USE_ZSTD}")
 
 if(SEAL_USE_ZSTD)
