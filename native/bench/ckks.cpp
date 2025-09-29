@@ -74,6 +74,33 @@ namespace sealbench
         }
     }
 
+    // Combined benchmark: measure EncryptSecret + EncryptPublic + EncodeDouble together
+    void bm_ckks_encrypt_combined(State &state, shared_ptr<BMEnv> bm_env)
+    {
+        vector<Ciphertext> &ct = bm_env->ct();
+        Plaintext &pt = bm_env->pt()[0];
+        vector<double> &msg = bm_env->msg_double();
+        parms_id_type parms_id = bm_env->context().first_parms_id();
+        double scale = bm_env->safe_scale();
+
+        for (auto _ : state)
+        {
+            // prepare inputs without counting in timing
+            state.PauseTiming();
+            bm_env->randomize_pt_ckks(pt);
+            bm_env->randomize_message_double(msg);
+
+            // Measure the three operations together
+            state.ResumeTiming();
+            // secret-key encrypt
+            bm_env->encryptor()->encrypt_symmetric(pt, ct[0]);
+            // public-key encrypt
+            bm_env->encryptor()->encrypt(pt, ct[1]);
+            // encode double
+            bm_env->ckks_encoder()->encode(msg, parms_id, scale, pt);
+        }
+    }
+
     void bm_ckks_decode_double(State &state, shared_ptr<BMEnv> bm_env)
     {
         vector<double> &msg = bm_env->msg_double();
@@ -84,6 +111,28 @@ namespace sealbench
             bm_env->randomize_pt_ckks(pt);
 
             state.ResumeTiming();
+            bm_env->ckks_encoder()->decode(pt, msg);
+        }
+    }
+
+    // Combined benchmark: measure Decrypt + DecodeDouble together
+    void bm_ckks_decrypt_combined(State &state, shared_ptr<BMEnv> bm_env)
+    {
+        vector<Ciphertext> &ct = bm_env->ct();
+        Plaintext &pt = bm_env->pt()[0];
+        vector<double> &msg = bm_env->msg_double();
+
+        for (auto _ : state)
+        {
+            // prepare a ciphertext without counting in timing
+            state.PauseTiming();
+            bm_env->randomize_ct_ckks(ct[0]);
+            // ensure pt buffer is ready
+            msg.resize(bm_env->ckks_encoder()->slot_count());
+
+            // measure decrypt + decode together
+            state.ResumeTiming();
+            bm_env->decryptor()->decrypt(ct[0], pt);
             bm_env->ckks_encoder()->decode(pt, msg);
         }
     }
@@ -251,6 +300,55 @@ namespace sealbench
 
             state.ResumeTiming();
             bm_env->evaluator()->relinearize_inplace(ct, bm_env->rlk());
+        }
+    }
+
+    // Combined CKKS multiply (ciphertext-ciphertext): multiply -> relinearize_inplace -> rescale_to_next_inplace
+    void bm_ckks_mul_combined_ct(State &state, shared_ptr<BMEnv> bm_env)
+    {
+        vector<Ciphertext> &ct = bm_env->ct();
+        double scale = bm_env->safe_scale();
+        for (auto _ : state)
+        {
+            state.PauseTiming();
+            // prepare two ciphertexts
+            bm_env->randomize_ct_ckks(ct[0]);
+            ct[0].scale() = scale;
+            bm_env->randomize_ct_ckks(ct[1]);
+            ct[1].scale() = scale;
+
+            // ensure output slot
+            Ciphertext out;
+            state.ResumeTiming();
+
+            // multiply
+            bm_env->evaluator()->multiply(ct[0], ct[1], out);
+            // relinearize
+            bm_env->evaluator()->relinearize_inplace(out, bm_env->rlk());
+            // rescale
+            bm_env->evaluator()->rescale_to_next_inplace(out);
+        }
+    }
+
+    // Combined CKKS multiply (ciphertext-plaintext): multiply_plain -> rescale_to_next_inplace
+    void bm_ckks_mul_combined_pt(State &state, shared_ptr<BMEnv> bm_env)
+    {
+        vector<Ciphertext> &ct = bm_env->ct();
+        Plaintext &pt = bm_env->pt()[0];
+        double scale = bm_env->safe_scale();
+        for (auto _ : state)
+        {
+            state.PauseTiming();
+            bm_env->randomize_ct_ckks(ct[0]);
+            ct[0].scale() = scale;
+            bm_env->randomize_pt_ckks(pt);
+            pt.scale() = scale;
+
+            Ciphertext out;
+            state.ResumeTiming();
+
+            bm_env->evaluator()->multiply_plain(ct[0], pt, out);
+            bm_env->evaluator()->rescale_to_next_inplace(out);
         }
     }
 

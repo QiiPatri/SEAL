@@ -1,6 +1,8 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT license.
 
+#pragma once
+
 #if (SEAL_COMPILER == SEAL_COMPILER_GCC)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wconversion"
@@ -17,6 +19,19 @@
 
 #include "seal/seal.h"
 #include "seal/util/rlwe.h"
+
+/**
+Wraps benchmark::RegisterBenchmark to use microsecond and accepts std::string name.
+Each benchmark runs for 10 rather than a dynamically chosen amount of iterations.
+If more runs are needed for more accurate measurements, either remove line below, or run benchmarks in repetition.
+*/
+#define SEAL_BENCHMARK_REGISTER(category, n, log_q, name, func, ...)                                                  \
+    RegisterBenchmark(                                                                                                \
+        (string("n=") + to_string(n) + string(" / log(q)=") + to_string(log_q) + string(" / " #category " / " #name)) \
+            .c_str(),                                                                                                 \
+        [=](State &st) { func(st, __VA_ARGS__); })                                                                    \
+        ->Unit(benchmark::kMicrosecond)                                                                               \
+        ->Iterations(10);
 
 namespace sealbench
 {
@@ -375,6 +390,11 @@ namespace sealbench
     void bm_bfv_sub_pt(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_bfv_mul_ct(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_bfv_mul_pt(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
+    // Combined BFV benchmarks
+    void bm_bfv_encrypt_combined(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
+    void bm_bfv_decrypt_combined(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
+    void bm_bfv_mul_combined_ct(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
+    void bm_bfv_mul_combined_pt(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_bfv_square(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_bfv_modswitch_inplace(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_bfv_relin_inplace(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
@@ -399,6 +419,11 @@ namespace sealbench
     void bm_bgv_mul_pt_inplace(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_bgv_square(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_bgv_square_inplace(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
+    // Combined BGV benchmarks
+    void bm_bgv_encrypt_combined(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
+    void bm_bgv_decrypt_combined(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
+    void bm_bgv_mul_combined_ct(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
+    void bm_bgv_mul_combined_pt(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_bgv_modswitch_inplace(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_bgv_relin_inplace(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_bgv_rotate_rows(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
@@ -411,9 +436,14 @@ namespace sealbench
     // CKKS-specific benchmark cases
     void bm_ckks_encrypt_secret(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_ckks_encrypt_public(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
+    void bm_ckks_encrypt_combined(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
+    void bm_ckks_decrypt_combined(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_ckks_decrypt(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_ckks_encode_double(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_ckks_decode_double(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
+    // Combined CKKS multiplication benchmarks
+    void bm_ckks_mul_combined_ct(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
+    void bm_ckks_mul_combined_pt(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_ckks_add_ct(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_ckks_add_pt(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_ckks_negate(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
@@ -425,4 +455,37 @@ namespace sealbench
     void bm_ckks_rescale_inplace(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_ckks_relin_inplace(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
     void bm_ckks_rotate(benchmark::State &state, std::shared_ptr<BMEnv> bm_env);
+
+    // Register functions (split by scheme/category)
+    void register_bm_family_keygen(const std::pair<std::size_t, std::vector<seal::Modulus>> &parms,
+                                   std::unordered_map<seal::EncryptionParameters, std::shared_ptr<BMEnv>> &bm_env_map);
+    void register_bm_family_bfv(const std::pair<std::size_t, std::vector<seal::Modulus>> &parms,
+                                std::unordered_map<seal::EncryptionParameters, std::shared_ptr<BMEnv>> &bm_env_map);
+    void register_bm_family_bgv(const std::pair<std::size_t, std::vector<seal::Modulus>> &parms,
+                                std::unordered_map<seal::EncryptionParameters, std::shared_ptr<BMEnv>> &bm_env_map);
+    void register_bm_family_ckks(const std::pair<std::size_t, std::vector<seal::Modulus>> &parms,
+                                 std::unordered_map<seal::EncryptionParameters, std::shared_ptr<BMEnv>> &bm_env_map);
+    void register_bm_family_util(const std::pair<std::size_t, std::vector<seal::Modulus>> &parms,
+                                 std::unordered_map<seal::EncryptionParameters, std::shared_ptr<BMEnv>> &bm_env_map);
+    // Per-category registers (added for split mains)
+    void register_bm_family_bfv_enc(const std::pair<std::size_t, std::vector<seal::Modulus>> &parms,
+                                    std::unordered_map<seal::EncryptionParameters, std::shared_ptr<BMEnv>> &bm_env_map);
+    void register_bm_family_bfv_add(const std::pair<std::size_t, std::vector<seal::Modulus>> &parms,
+                                    std::unordered_map<seal::EncryptionParameters, std::shared_ptr<BMEnv>> &bm_env_map);
+    void register_bm_family_bfv_mul(const std::pair<std::size_t, std::vector<seal::Modulus>> &parms,
+                                    std::unordered_map<seal::EncryptionParameters, std::shared_ptr<BMEnv>> &bm_env_map);
+
+    void register_bm_family_ckks_enc(const std::pair<std::size_t, std::vector<seal::Modulus>> &parms,
+                                     std::unordered_map<seal::EncryptionParameters, std::shared_ptr<BMEnv>> &bm_env_map);
+    void register_bm_family_ckks_add(const std::pair<std::size_t, std::vector<seal::Modulus>> &parms,
+                                     std::unordered_map<seal::EncryptionParameters, std::shared_ptr<BMEnv>> &bm_env_map);
+    void register_bm_family_ckks_mul(const std::pair<std::size_t, std::vector<seal::Modulus>> &parms,
+                                     std::unordered_map<seal::EncryptionParameters, std::shared_ptr<BMEnv>> &bm_env_map);
+
+    void register_bm_family_bgv_enc(const std::pair<std::size_t, std::vector<seal::Modulus>> &parms,
+                                    std::unordered_map<seal::EncryptionParameters, std::shared_ptr<BMEnv>> &bm_env_map);
+    void register_bm_family_bgv_add(const std::pair<std::size_t, std::vector<seal::Modulus>> &parms,
+                                    std::unordered_map<seal::EncryptionParameters, std::shared_ptr<BMEnv>> &bm_env_map);
+    void register_bm_family_bgv_mul(const std::pair<std::size_t, std::vector<seal::Modulus>> &parms,
+                                    std::unordered_map<seal::EncryptionParameters, std::shared_ptr<BMEnv>> &bm_env_map);
 } // namespace sealbench

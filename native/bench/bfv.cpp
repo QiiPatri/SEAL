@@ -186,6 +186,78 @@ namespace sealbench
         }
     }
 
+    // Combined BFV: encrypt (public+secret+encode) -> single benchmark item "加密"
+    void bm_bfv_encrypt_combined(State &state, shared_ptr<BMEnv> bm_env)
+    {
+        vector<Ciphertext> &ct = bm_env->ct();
+        Plaintext &pt = bm_env->pt()[0];
+        vector<uint64_t> &msg = bm_env->msg_uint64();
+        for (auto _ : state)
+        {
+            state.PauseTiming();
+            // randomize message (this will be encoded below)
+            bm_env->randomize_message_uint64(msg);
+            // perform encoding into plaintext
+            bm_env->batch_encoder()->encode(msg, pt);
+
+            state.ResumeTiming();
+            // public encrypt
+            bm_env->encryptor()->encrypt(pt, ct[2]);
+            // symmetric encrypt
+            bm_env->encryptor()->encrypt_symmetric(pt, ct[0]);
+        }
+    }
+
+    // Combined BFV: decrypt + decode -> "解密"
+    void bm_bfv_decrypt_combined(State &state, shared_ptr<BMEnv> bm_env)
+    {
+        vector<Ciphertext> &ct = bm_env->ct();
+        Plaintext &pt = bm_env->pt()[0];
+        for (auto _ : state)
+        {
+            state.PauseTiming();
+            bm_env->randomize_ct_bfv(ct[0]);
+            state.ResumeTiming();
+            bm_env->decryptor()->decrypt(ct[0], pt);
+            // decode uses batch_encoder
+            vector<uint64_t> &msg = bm_env->msg_uint64();
+            bm_env->batch_encoder()->decode(pt, msg);
+        }
+    }
+
+    // Combined BFV multiply: ciphertext-ciphertext multiply + relinearize (no rescale in BFV)
+    void bm_bfv_mul_combined_ct(State &state, shared_ptr<BMEnv> bm_env)
+    {
+        vector<Ciphertext> &ct = bm_env->ct();
+        for (auto _ : state)
+        {
+            state.PauseTiming();
+            bm_env->randomize_ct_bfv(ct[0]);
+            bm_env->randomize_ct_bfv(ct[1]);
+            state.ResumeTiming();
+            bm_env->evaluator()->multiply(ct[0], ct[1], ct[2]);
+            if (bm_env->context().using_keyswitching())
+            {
+                bm_env->evaluator()->relinearize_inplace(ct[2], bm_env->rlk());
+            }
+        }
+    }
+
+    // Combined BFV multiply: ciphertext-plaintext multiply
+    void bm_bfv_mul_combined_pt(State &state, shared_ptr<BMEnv> bm_env)
+    {
+        vector<Ciphertext> &ct = bm_env->ct();
+        Plaintext &pt = bm_env->pt()[0];
+        for (auto _ : state)
+        {
+            state.PauseTiming();
+            bm_env->randomize_ct_bfv(ct[0]);
+            bm_env->randomize_pt_bfv(pt);
+            state.ResumeTiming();
+            bm_env->evaluator()->multiply_plain(ct[0], pt, ct[2]);
+        }
+    }
+
     void bm_bfv_square(State &state, shared_ptr<BMEnv> bm_env)
     {
         vector<Ciphertext> &ct = bm_env->ct();

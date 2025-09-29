@@ -61,7 +61,7 @@ message(STATUS "Microsoft SEAL debug mode: ${SEAL_DEBUG}")
 # [option] SEAL_USE_CXX17 (default: ON)
 # Use C++17, use C++14 otherwise.
 set(SEAL_USE_CXX17_OPTION_STR "Use C++17")
-option(SEAL_USE_CXX17 ${SEAL_USE_CXX17_OPTION_STR} ON)
+option(SEAL_USE_CXX17 ${SEAL_USE_CXX17_OPTION_STR} OFF)
 message(STATUS "SEAL_USE_CXX17: ${SEAL_USE_CXX17}")
 
 # Enable features from C++17 if available, disable features if set to OFF.
@@ -274,7 +274,7 @@ mark_as_advanced(FORCE SEAL_AVOID_BRANCHING)
 
 # [option] SEAL_USE_INTRIN (default: ON)
 set(SEAL_USE_INTRIN_OPTION_STR "Use intrinsics")
-option(SEAL_USE_INTRIN ${SEAL_USE_INTRIN_OPTION_STR} ON)
+option(SEAL_USE_INTRIN ${SEAL_USE_INTRIN_OPTION_STR} OFF)
 # Look for header files, use intrinsics if available, set to OFF otherwise.
 include(CheckCXXIntrinsicsHeader)
 if(NOT SEAL_INTRIN_HEADER_FOUND)
@@ -701,7 +701,7 @@ endif()
 
 # [option] SEAL_BUILD_BENCH
 set(SEAL_BUILD_BENCH_OPTION_STR "Build C++ benchmarks for Microsoft SEAL")
-option(SEAL_BUILD_BENCH ${SEAL_BUILD_BENCH_OPTION_STR} OFF)
+option(SEAL_BUILD_BENCH ${SEAL_BUILD_BENCH_OPTION_STR} ON)
 message(STATUS "SEAL_BUILD_BENCH: ${SEAL_BUILD_BENCH}")
 
 if(SEAL_BUILD_BENCH)

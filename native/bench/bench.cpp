@@ -37,9 +37,21 @@ namespace sealbench
 
         // For BGV benchmark cases (default to 20-bit plain_modulus)
         EncryptionParameters parms_bgv(scheme_type::bgv);
+        //打印params
+        cout << "BGV params:" << endl;
+        //打印 plain_modulus
+        cout << "Plain modulus: " << parms_bfv.plain_modulus().value() << endl;
+        cout << "Poly modulus degree: " << parms.first << endl;
+        cout << "Coeff modulus: ";
+        for (const auto &mod : parms.second)
+        {
+            cout << mod.value() << " ";
+        }
+        cout << endl;
         parms_bgv.set_poly_modulus_degree(parms.first);
         parms_bgv.set_coeff_modulus(parms.second);
         parms_bgv.set_plain_modulus(PlainModulus::Batching(parms.first, 20));
+        
         shared_ptr<BMEnv> bm_env_bgv = bm_env_map.find(parms_bgv)->second;
 
         // For CKKS / KeyGen / Util benchmark cases
@@ -121,19 +133,7 @@ namespace sealbench
         SEAL_BENCHMARK_REGISTER(BGV, n, log_q, EvaluateToNTTInplace, bm_bgv_to_ntt_inplace, bm_env_bgv);
         SEAL_BENCHMARK_REGISTER(BGV, n, log_q, EvaluateFromNTTInplace, bm_bgv_from_ntt_inplace, bm_env_bgv);
 
-        SEAL_BENCHMARK_REGISTER(CKKS, n, log_q, EncryptSecret, bm_ckks_encrypt_secret, bm_env_ckks);
-        SEAL_BENCHMARK_REGISTER(CKKS, n, log_q, EncryptPublic, bm_ckks_encrypt_public, bm_env_ckks);
-        SEAL_BENCHMARK_REGISTER(CKKS, n, log_q, Decrypt, bm_ckks_decrypt, bm_env_ckks);
-        SEAL_BENCHMARK_REGISTER(CKKS, n, log_q, EncodeDouble, bm_ckks_encode_double, bm_env_ckks);
-        SEAL_BENCHMARK_REGISTER(CKKS, n, log_q, DecodeDouble, bm_ckks_decode_double, bm_env_ckks);
-        SEAL_BENCHMARK_REGISTER(CKKS, n, log_q, EvaluateAddCt, bm_ckks_add_ct, bm_env_ckks);
-        SEAL_BENCHMARK_REGISTER(CKKS, n, log_q, EvaluateAddPt, bm_ckks_add_pt, bm_env_ckks);
-        SEAL_BENCHMARK_REGISTER(CKKS, n, log_q, EvaluateNegate, bm_ckks_negate, bm_env_ckks);
-        SEAL_BENCHMARK_REGISTER(CKKS, n, log_q, EvaluateSubCt, bm_ckks_sub_ct, bm_env_ckks);
-        SEAL_BENCHMARK_REGISTER(CKKS, n, log_q, EvaluateSubPt, bm_ckks_sub_pt, bm_env_ckks);
-        SEAL_BENCHMARK_REGISTER(CKKS, n, log_q, EvaluateMulCt, bm_ckks_mul_ct, bm_env_ckks);
-        SEAL_BENCHMARK_REGISTER(CKKS, n, log_q, EvaluateMulPt, bm_ckks_mul_pt, bm_env_ckks);
-        SEAL_BENCHMARK_REGISTER(CKKS, n, log_q, EvaluateSquare, bm_ckks_square, bm_env_ckks);
+    // CKKS registrations moved to per-category registration functions to allow concise naming.
         if (bm_env_ckks->context().first_context_data()->parms().coeff_modulus().size() > 1)
         {
             SEAL_BENCHMARK_REGISTER(CKKS, n, log_q, EvaluateRescaleInplace, bm_ckks_rescale_inplace, bm_env_ckks);
