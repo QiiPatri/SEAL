@@ -30,8 +30,8 @@ If more runs are needed for more accurate measurements, either remove line below
         (string("n=") + to_string(n) + string(" / log(q)=") + to_string(log_q) + string(" / " #category " / " #name)) \
             .c_str(),                                                                                                 \
         [=](State &st) { func(st, __VA_ARGS__); })                                                                    \
-        ->Unit(benchmark::kMicrosecond)                                                                               \
-        ->Iterations(10);
+    ->Unit(benchmark::kMicrosecond)                                                                               \
+    ->Iterations(100);
 
 namespace sealbench
 {

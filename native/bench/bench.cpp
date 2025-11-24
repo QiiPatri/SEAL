@@ -22,8 +22,8 @@ namespace sealbench
         (string("n=") + to_string(n) + string(" / log(q)=") + to_string(log_q) + string(" / " #category " / " #name)) \
             .c_str(),                                                                                                 \
         [=](State &st) { func(st, __VA_ARGS__); })                                                                    \
-        ->Unit(benchmark::kMicrosecond)                                                                               \
-        ->Iterations(10);
+    ->Unit(benchmark::kMicrosecond)                                                                               \
+    ->Iterations(100);
 
     void register_bm_family(
         const pair<size_t, vector<Modulus>> &parms, unordered_map<EncryptionParameters, shared_ptr<BMEnv>> &bm_env_map)
