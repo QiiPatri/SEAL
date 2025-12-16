@@ -19,6 +19,7 @@
 
 #include "seal/seal.h"
 #include "seal/util/rlwe.h"
+#include <cstddef>
 
 /**
 Wraps benchmark::RegisterBenchmark to use microsecond and accepts std::string name.
@@ -35,6 +36,7 @@ If more runs are needed for more accurate measurements, either remove line below
 
 namespace sealbench
 {
+    std::size_t RunBenchmarksWithTotalTime();
     /**
     Class BMEnv contains a set of required precomputed/preconstructed objects to setup a benchmark case.
     A global BMEnv object is only initialized when a benchmark case for a EncryptionParameters is requested.

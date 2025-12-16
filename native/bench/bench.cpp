@@ -23,7 +23,7 @@ namespace sealbench
             .c_str(),                                                                                                 \
         [=](State &st) { func(st, __VA_ARGS__); })                                                                    \
     ->Unit(benchmark::kMicrosecond)                                                                               \
-    ->Iterations(100);
+    ->Iterations(200);
 
     void register_bm_family(
         const pair<size_t, vector<Modulus>> &parms, unordered_map<EncryptionParameters, shared_ptr<BMEnv>> &bm_env_map)
@@ -213,7 +213,7 @@ int main(int argc, char **argv)
         sealbench::register_bm_family(i, bm_env_map);
     }
 
-    RunSpecifiedBenchmarks();
+    RunBenchmarksWithTotalTime();
 
     // After running all benchmark cases, we print again the total memory consumption by SEAL memory pool.
     // This value should be larger than the previous amount but not by much.

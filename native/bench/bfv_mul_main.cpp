@@ -29,5 +29,5 @@ int main(int argc, char **argv)
             throw invalid_argument("duplicate parameter sets");
     }
     for (auto &i : bm_parms_vec) register_bm_family_bfv_mul(i, bm_env_map);
-    RunSpecifiedBenchmarks();
+    RunBenchmarksWithTotalTime();
 }

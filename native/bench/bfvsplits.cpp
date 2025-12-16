@@ -21,10 +21,10 @@ namespace sealbench
         int log_q = static_cast<int>(bm_env_bfv->context().key_context_data()->total_coeff_modulus_bit_count());
         RegisterBenchmark((string("BFV / 加密")).c_str(), [=](State &st) { bm_bfv_encrypt_combined(st, bm_env_bfv); })
             ->Unit(benchmark::kMicrosecond)
-                ->Iterations(100);
+                ->Iterations(200);
         RegisterBenchmark((string("BFV / 解密")).c_str(), [=](State &st) { bm_bfv_decrypt_combined(st, bm_env_bfv); })
             ->Unit(benchmark::kMicrosecond)
-                ->Iterations(100);
+                ->Iterations(200);
     // 编码/解码已并入加密/解密基准，不再单独注册。
     }
 
@@ -40,10 +40,10 @@ namespace sealbench
         int log_q = static_cast<int>(bm_env_bfv->context().key_context_data()->total_coeff_modulus_bit_count());
         RegisterBenchmark((string("BFV / 密文-密文加法")).c_str(), [=](State &st) { bm_bfv_add_ct(st, bm_env_bfv); })
             ->Unit(benchmark::kMicrosecond)
-                ->Iterations(100);
+                ->Iterations(4000);
         RegisterBenchmark((string("BFV / 密文-明文加法")).c_str(), [=](State &st) { bm_bfv_add_pt(st, bm_env_bfv); })
             ->Unit(benchmark::kMicrosecond)
-                ->Iterations(100);
+                ->Iterations(4000);
     }
 
     void register_bm_family_bfv_mul(const pair<size_t, vector<seal::Modulus>> &parms, unordered_map<seal::EncryptionParameters, shared_ptr<BMEnv>> &bm_env_map)

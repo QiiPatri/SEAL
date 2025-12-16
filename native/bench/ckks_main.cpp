@@ -38,5 +38,5 @@ int main(int argc, char **argv)
         register_bm_family_ckks(i, bm_env_map);
     }
 
-    RunSpecifiedBenchmarks();
+    RunBenchmarksWithTotalTime();
 }

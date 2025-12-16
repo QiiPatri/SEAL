@@ -41,16 +41,16 @@ namespace sealbench
         // Concise localized BFV registrations (no n=/log(q)= prefix)
         RegisterBenchmark((string("BFV / 加密")).c_str(), [=](State &st) { bm_bfv_encrypt_combined(st, bm_env_bfv); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(200);
         RegisterBenchmark((string("BFV / 解密")).c_str(), [=](State &st) { bm_bfv_decrypt_combined(st, bm_env_bfv); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(200);
         RegisterBenchmark((string("BFV / 密文-密文加法")).c_str(), [=](State &st) { bm_bfv_add_ct(st, bm_env_bfv); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(4000);
         RegisterBenchmark((string("BFV / 密文-明文加法")).c_str(), [=](State &st) { bm_bfv_add_pt(st, bm_env_bfv); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(4000);
         RegisterBenchmark((string("BFV / 密文-密文乘法")).c_str(), [=](State &st) { bm_bfv_mul_combined_ct(st, bm_env_bfv); })
             ->Unit(benchmark::kMicrosecond)
             ->Iterations(100);
@@ -59,10 +59,10 @@ namespace sealbench
             ->Iterations(100);
         RegisterBenchmark((string("BFV / 编码")).c_str(), [=](State &st) { bm_bfv_encode_batch(st, bm_env_bfv); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(200);
         RegisterBenchmark((string("BFV / 解码")).c_str(), [=](State &st) { bm_bfv_decode_batch(st, bm_env_bfv); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(200);
         RegisterBenchmark((string("BFV / 取负/减法/旋转/重线性化 等" )).c_str(), [=](State &st) { bm_bfv_negate(st, bm_env_bfv); })
             ->Unit(benchmark::kMicrosecond)
             ->Iterations(100);
@@ -151,12 +151,12 @@ namespace sealbench
         // Combined encrypt: merge secret/public encrypt and encode timings into one concise benchmark
         RegisterBenchmark((string("BGV / 加密")).c_str(), [=](State &st) { bm_bgv_encrypt_combined(st, bm_env_bgv); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(300);
 
         // Combined decrypt + decode -> '解密'
         RegisterBenchmark((string("BGV / 解密")).c_str(), [=](State &st) { bm_bgv_decrypt_combined(st, bm_env_bgv); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(300);
     }
 
     void register_bm_family_bgv_add(const pair<size_t, vector<Modulus>> &parms, unordered_map<EncryptionParameters, shared_ptr<BMEnv>> &bm_env_map)
@@ -173,10 +173,10 @@ namespace sealbench
         // Only register concise localized add benchmarks: ciphertext-ciphertext and ciphertext-plaintext
         RegisterBenchmark((string("BGV / 密文-密文加法")).c_str(), [=](State &st) { bm_bgv_add_ct(st, bm_env_bgv); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(4000);
         RegisterBenchmark((string("BGV / 密文-明文加法")).c_str(), [=](State &st) { bm_bgv_add_pt(st, bm_env_bgv); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(4000);
     }
 
     void register_bm_family_bgv_mul(const pair<size_t, vector<Modulus>> &parms, unordered_map<EncryptionParameters, shared_ptr<BMEnv>> &bm_env_map)
@@ -193,10 +193,10 @@ namespace sealbench
         // Register concise localized multiplication benchmarks (BGV multiply has no rescale)
         RegisterBenchmark((string("BGV / 密文-密文乘法")).c_str(), [=](State &st) { bm_bgv_mul_combined_ct(st, bm_env_bgv); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(300);
         RegisterBenchmark((string("BGV / 密文-明文乘法")).c_str(), [=](State &st) { bm_bgv_mul_combined_pt(st, bm_env_bgv); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(300);
     }
 
     void register_bm_family_ckks(const pair<size_t, vector<Modulus>> &parms, unordered_map<EncryptionParameters, shared_ptr<BMEnv>> &bm_env_map)
@@ -254,10 +254,10 @@ namespace sealbench
         // Only register concise localized add benchmarks (no n= / log(q)= prefix)
         RegisterBenchmark((string("CKKS / 密文-密文加法")).c_str(), [=](State &st) { bm_ckks_add_ct(st, bm_env_ckks); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(6000);
         RegisterBenchmark((string("CKKS / 密文-明文加法")).c_str(), [=](State &st) { bm_ckks_add_pt(st, bm_env_ckks); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(6000);
     }
 
     void register_bm_family_ckks_mul(const pair<size_t, vector<Modulus>> &parms, unordered_map<EncryptionParameters, shared_ptr<BMEnv>> &bm_env_map)
@@ -273,10 +273,10 @@ namespace sealbench
         // Register concise, localized CKKS multiplication benchmarks (combined operations)
         RegisterBenchmark((string("CKKS / 密文-密文乘法")).c_str(), [=](State &st) { bm_ckks_mul_combined_ct(st, bm_env_ckks); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(200);
         RegisterBenchmark((string("CKKS / 密文-明文乘法")).c_str(), [=](State &st) { bm_ckks_mul_combined_pt(st, bm_env_ckks); })
             ->Unit(benchmark::kMicrosecond)
-            ->Iterations(100);
+            ->Iterations(200);
     }
 
     void register_bm_family_util(const pair<size_t, vector<Modulus>> &parms, unordered_map<EncryptionParameters, shared_ptr<BMEnv>> &bm_env_map)

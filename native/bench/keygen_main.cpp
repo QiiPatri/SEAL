@@ -39,5 +39,5 @@ int main(int argc, char **argv)
         register_bm_family_keygen(i, bm_env_map);
     }
 
-    RunSpecifiedBenchmarks();
+    RunBenchmarksWithTotalTime();
 }
